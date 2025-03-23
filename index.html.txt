@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        .chat-box { width: 100%; max-width: 400px; margin: auto; padding: 20px; border-radius: 10px; background: #f2f2f2; }
+        .btn { display: block; margin: 10px auto; padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
+        .btn:hover { background: lightgray; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-box">
+        <p id="chat-question">Heyyy, how's your mood rn?</p>
+        <div id="options">
+            <button class="btn" onclick="nextStep('Good')">Good</button>
+            <button class="btn" onclick="nextStep('Meh')">Meh</button>
+            <button class="btn" onclick="nextStep('Aint gonna tell ya kid')">Aint gonna tell ya kid</button>
+        </div>
+    </div>
+
+    <script>
+        // Firebase setup
+        function sendResponse(choice) {
+            fetch('https://chat-responses-default-rtdb.firebaseio.com/responses.json', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ response: choice, timestamp: new Date().toISOString() })
+            });
+        }
+
+        function nextStep(response) {
+            sendResponse(response);
+            let questionBox = document.getElementById("chat-question");
+            let optionsBox = document.getElementById("options");
+            
+            if (response === "Good") {
+                questionBox.innerText = "Glad to hear that! Let's talk things out yaar.";
+                optionsBox.innerHTML = `<button class="btn" onclick="nextStep('Aight')">Aight</button>`;
+            }
+            else if (response === "Meh") {
+                questionBox.innerText = "What happened?";
+                optionsBox.innerHTML = `
+                    <button class="btn" onclick="nextStep('Lets talk')">Let's talk</button>
+                    <button class="btn" onclick="nextStep('Wont tell ya')">Wont tell ya</button>
+                `;
+            }
+            else if (response === "Aint gonna tell ya kid") {
+                questionBox.innerText = "Ohhh being all secretive huh 😂";
+                optionsBox.innerHTML = `
+                    <button class="btn" onclick="nextStep('None of your business')">None of your business</button>
+                    <button class="btn" onclick="nextStep('Hehe')">Hehe</button>
+                `;
+            }
+            else if (response === "Wont tell ya") {
+                questionBox.innerText = "Comeee onnn, it wont happen again dood. I'll give you proper replies, no more mood killers <3";
+                optionsBox.innerHTML = `
+                    <button class="btn" onclick="nextStep('Oke fine')">Oke fine</button>
+                    <button class="btn" onclick="nextStep('Let me think about it')">Let me think about it</button>
+                `;
+            }
+            else if (response === "Let me think about it") {
+                questionBox.innerText = "Howwww long are you gonna think? T_T";
+                optionsBox.innerHTML = `
+                    <button class="btn" onclick="nextStep('5 min')">5 min</button>
+                    <button class="btn" onclick="nextStep('10 min')">10 min</button>
+                `;
+            }
+            else if (response === "Lets talk") {
+                questionBox.innerText = "Okeee I'll text ya!";
+                optionsBox.innerHTML = "";
+            }
+        }
+    </script>
+
+</body>
+</html>
