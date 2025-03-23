@@ -22,105 +22,79 @@
         const database = getDatabase(app);
 
         function saveResponse(userId, mood) {
-            push(ref(database, 'users/' + userId), { mood: mood });
+            push(ref(database, 'users/' + userId + '/responses'), { mood: mood });
         }
 
-        function showNextStep(response, nextOptions) {
-            document.getElementById("message").textContent = response;
+        function showNextOptions(options, heading) {
+            document.getElementById("message").textContent = heading;
             document.getElementById("options").innerHTML = "";
-            if (nextOptions) {
-                nextOptions.forEach(option => {
-                    let button = document.createElement("button");
-                    button.textContent = option.text;
-                    button.onclick = function () {
-                        saveResponse("user1", option.text);
-                        showNextStep(option.text, option.next);
-                    };
-                    document.getElementById("options").appendChild(button);
-                });
-            }
+            options.forEach(option => {
+                let button = document.createElement("button");
+                button.textContent = option.text;
+                button.onclick = function () {
+                    saveResponse("user1", option.text);
+                    if (option.nextHeading) {
+                        showNextOptions(option.next, option.nextHeading);
+                    } else {
+                        document.getElementById("message").textContent = "Cool! I'll text ya soon.";
+                        document.getElementById("options").innerHTML = "";
+                    }
+                };
+                document.getElementById("options").appendChild(button);
+            });
         }
 
         document.addEventListener("DOMContentLoaded", function () {
             const firstOptions = [
                 { text: "Good", next: [
-                    { text: "Glad to hear that, Let's talk things out yaar 🫠", next: [
-                        { text: "Aight", next: [
-                            { text: "Cool! I'll text ya soon", next: [] }
-                        ] },
-                        { text: "What if I say no kid", next: [
-                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                                { text: "Aight fine", next: [
-                                    { text: "Cool! I'll text ya soon", next: [] }
-                                ] },
-                                { text: "I'll think about it", next: [
-                                    { text: "How long are you gonna think T_T", next: [
-                                        { text: "5 min", next: [
-                                            { text: "Cool! I'll text ya soon", next: [] }
-                                        ] },
-                                        { text: "10 min", next: [
-                                            { text: "Cool! I'll text ya soon", next: [] }
-                                        ] }
-                                    ] }
+                    { text: "Aight", next: [], nextHeading: "Cool! I'll text ya soon." },
+                    { text: "What if I say no kid", next: [
+                        { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                            { text: "Aight fine", next: [], nextHeading: "Cool! I'll text ya soon." },
+                            { text: "I'll think about it", next: [
+                                { text: "How long are you gonna think T_T", next: [
+                                    { text: "5 min", next: [], nextHeading: "Cool! I'll text ya soon." },
+                                    { text: "10 min", next: [], nextHeading: "Cool! I'll text ya soon." }
                                 ] }
                             ] }
-                        ] }
+                        ], nextHeading: "Come onnn, it won't happen again dood! No more mood killers <3" }
                     ] }
-                ] },
+                ], nextHeading: "Glad to hear that, Let's talk things out yaar 🫠" },
                 { text: "Meh", next: [
-                    { text: "What happened?", next: [
-                        { text: "Let's talk", next: [
-                            { text: "Cool! I'll text ya soon", next: [] }
-                        ] },
-                        { text: "Won't tell ya", next: [
-                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                                { text: "Oke fine", next: [
-                                    { text: "Cool! I'll text ya soon", next: [] }
-                                ] },
-                                { text: "Let me think about it", next: [
-                                    { text: "How long are you gonna think T_T", next: [
-                                        { text: "5 min", next: [
-                                            { text: "Cool! I'll text ya soon", next: [] }
-                                        ] },
-                                        { text: "10 min", next: [
-                                            { text: "Cool! I'll text ya soon", next: [] }
-                                        ] }
-                                    ] }
+                    { text: "Let's talk", next: [], nextHeading: "Cool! I'll text ya soon." },
+                    { text: "Won't tell ya", next: [
+                        { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                            { text: "Oke fine", next: [], nextHeading: "Cool! I'll text ya soon." },
+                            { text: "Let me think about it", next: [
+                                { text: "How long are you gonna think T_T", next: [
+                                    { text: "5 min", next: [], nextHeading: "Cool! I'll text ya soon." },
+                                    { text: "10 min", next: [], nextHeading: "Cool! I'll text ya soon." }
                                 ] }
                             ] }
-                        ] }
+                        ], nextHeading: "Come onnn, it won't happen again dood! No more mood killers <3" }
                     ] }
-                ] },
+                ], nextHeading: "What happened?" },
                 { text: "Ain't gonna tell ya kid", next: [
-                    { text: "Ohhh being all secretive huh 😂", next: [
-                        { text: "None of your business", next: [
-                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                                { text: "Oke fine", next: [
-                                    { text: "Cool! I'll text ya soon", next: [] }
-                                ] },
-                                { text: "Let me think about it", next: [
-                                    { text: "How long are you gonna think T_T", next: [
-                                        { text: "5 min", next: [
-                                            { text: "Cool! I'll text ya soon", next: [] }
-                                        ] },
-                                        { text: "10 min", next: [
-                                            { text: "Cool! I'll text ya soon", next: [] }
-                                        ] }
-                                    ] }
+                    { text: "None of your business", next: [
+                        { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                            { text: "Oke fine", next: [], nextHeading: "Cool! I'll text ya soon." },
+                            { text: "Let me think about it", next: [
+                                { text: "How long are you gonna think T_T", next: [
+                                    { text: "5 min", next: [], nextHeading: "Cool! I'll text ya soon." },
+                                    { text: "10 min", next: [], nextHeading: "Cool! I'll text ya soon." }
                                 ] }
                             ] }
-                        ] },
-                        { text: "Hehe", next: [
-                            { text: "Let's talk things out yaar", next: [
-                                { text: "Aight", next: [
-                                    { text: "Cool! I'll text ya soon", next: [] }
-                                ] }
-                            ] }
+                        ], nextHeading: "Come onnn, it won't happen again dood! No more mood killers <3" }
+                    ] },
+                    { text: "Hehe", next: [
+                        { text: "Let's talk things out yaar", next: [
+                            { text: "Aight", next: [], nextHeading: "Cool! I'll text ya soon." }
                         ] }
                     ] }
-                ] }
+                ], nextHeading: "Ohhh being all secretive huh 😂" }
             ];
-            showNextStep("Heyyy, How's your mood rn?", firstOptions);
+
+            showNextOptions(firstOptions, "Heyyy, How's your mood rn?");
         });
     </script>
 </head>
@@ -128,6 +102,4 @@
     <h2 id="message">Heyyy, How's your mood rn?</h2>
     <div id="options"></div>
 </body>
-</html>
-
 </html>
