@@ -3,78 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-        .chat-box { width: 100%; max-width: 400px; margin: auto; padding: 20px; border-radius: 10px; background: #f2f2f2; }
-        .btn { display: block; margin: 10px auto; padding: 10px; border: none; cursor: pointer; border-radius: 5px; }
-        .btn:hover { background: lightgray; }
-    </style>
-</head>
-<body>
+    <title>Chat Interaction</title>
+    <script type="module">
+        // Firebase Setup
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 
-    <div class="chat-box">
-        <p id="chat-question">Heyyy, how's your mood rn?</p>
-        <div id="options">
-            <button class="btn" onclick="nextStep('Good')">Good</button>
-            <button class="btn" onclick="nextStep('Meh')">Meh</button>
-            <button class="btn" onclick="nextStep('Aint gonna tell ya kid')">Aint gonna tell ya kid</button>
-        </div>
-    </div>
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-    <script>
-        // Firebase setup
-        function sendResponse(choice) {
-            fetch('https://chat-responses-default-rtdb.firebaseio.com/responses.json', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ response: choice, timestamp: new Date().toISOString() })
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        function saveResponse(response) {
+            const responsesRef = ref(database, 'responses');
+            const newResponseRef = push(responsesRef);
+            set(newResponseRef, {
+                response: response,
+                timestamp: new Date().toISOString()
             });
         }
 
-        function nextStep(response) {
-            sendResponse(response);
-            let questionBox = document.getElementById("chat-question");
-            let optionsBox = document.getElementById("options");
-            
-            if (response === "Good") {
-                questionBox.innerText = "Glad to hear that! Let's talk things out yaar.";
-                optionsBox.innerHTML = `<button class="btn" onclick="nextStep('Aight')">Aight</button>`;
-            }
-            else if (response === "Meh") {
-                questionBox.innerText = "What happened?";
-                optionsBox.innerHTML = `
-                    <button class="btn" onclick="nextStep('Lets talk')">Let's talk</button>
-                    <button class="btn" onclick="nextStep('Wont tell ya')">Wont tell ya</button>
-                `;
-            }
-            else if (response === "Aint gonna tell ya kid") {
-                questionBox.innerText = "Ohhh being all secretive huh 😂";
-                optionsBox.innerHTML = `
-                    <button class="btn" onclick="nextStep('None of your business')">None of your business</button>
-                    <button class="btn" onclick="nextStep('Hehe')">Hehe</button>
-                `;
-            }
-            else if (response === "Wont tell ya") {
-                questionBox.innerText = "Comeee onnn, it wont happen again dood. I'll give you proper replies, no more mood killers <3";
-                optionsBox.innerHTML = `
-                    <button class="btn" onclick="nextStep('Oke fine')">Oke fine</button>
-                    <button class="btn" onclick="nextStep('Let me think about it')">Let me think about it</button>
-                `;
-            }
-            else if (response === "Let me think about it") {
-                questionBox.innerText = "Howwww long are you gonna think? T_T";
-                optionsBox.innerHTML = `
-                    <button class="btn" onclick="nextStep('5 min')">5 min</button>
-                    <button class="btn" onclick="nextStep('10 min')">10 min</button>
-                `;
-            }
-            else if (response === "Lets talk") {
-                questionBox.innerText = "Okeee I'll text ya!";
-                optionsBox.innerHTML = "";
-            }
+        function showNextOptions(options) {
+            document.getElementById("options").innerHTML = "";
+            options.forEach(option => {
+                let button = document.createElement("button");
+                button.textContent = option.text;
+                button.onclick = function () {
+                    saveResponse(option.text);
+                    if (option.next) {
+                        showNextOptions(option.next);
+                    } else {
+                        document.getElementById("message").textContent = "Cool! I'll text you soon.";
+                    }
+                };
+                document.getElementById("options").appendChild(button);
+            });
         }
-    </script>
 
+        document.addEventListener("DOMContentLoaded", function () {
+            const firstOptions = [
+                { text: "Good", next: [
+                    { text: "Glad to hear that", next: [
+                        { text: "Let's talk things out yaar", next: [
+                            { text: "Aight", next: [] },
+                            { text: "Cool! I'll text ya", next: [] }
+                        ] }
+                    ] }
+                ] },
+                { text: "What if I say no kid", next: [
+                    { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                        { text: "Aight fine", next: [] },
+                        { text: "I'll think about it", next: [
+                            { text: "How long are you gonna think T_T", next: [
+                                { text: "5 min", next: [] },
+                                { text: "10 min", next: [] }
+                            ] }
+                        ] }
+                    ] }
+                ] },
+                { text: "Meh", next: [
+                    { text: "What happened?", next: [
+                        { text: "Let's talk", next: [
+                            { text: "Okeee, I'll text ya", next: [] }
+                        ] },
+                        { text: "Won't tell ya", next: [
+                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                                { text: "Oke fine", next: [] },
+                                { text: "Let me think about it", next: [
+                                    { text: "How long are you gonna think T_T", next: [
+                                        { text: "5 min", next: [] },
+                                        { text: "10 min", next: [] }
+                                    ] }
+                                ] }
+                            ] }
+                        ] }
+                    ] }
+                ] },
+                { text: "Ain't gonna tell ya kid", next: [
+                    { text: "Ohhh being all secretive huh 😂", next: [
+                        { text: "None of your business", next: [
+                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                                { text: "Oke fine", next: [] },
+                                { text: "Let me think about it", next: [
+                                    { text: "How long are you gonna think T_T", next: [
+                                        { text: "5 min", next: [] },
+                                        { text: "10 min", next: [] }
+                                    ] }
+                                ] }
+                            ] }
+                        ] },
+                        { text: "Hehe", next: [
+                            { text: "Let's talk things out yaar", next: [
+                                { text: "Aight", next: [] }
+                            ] }
+                        ] }
+                    ] }
+                ] }
+            ];
+
+            showNextOptions(firstOptions);
+        });
+    </script>
+</head>
+<body>
+    <h2>Heyyy, How's your mood rn?</h2>
+    <div id="options"></div>
 </body>
 </html>
