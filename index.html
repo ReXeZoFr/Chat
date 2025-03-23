@@ -5,39 +5,51 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Interaction</title>
     <script type="module">
-        // Firebase Setup
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-        import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+       // Import Firebase modules
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, push, onValue } from "firebase/database";
 
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+// Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyANn0XFPQ_W9QAgNnzIDq4-M2prTRPq13w",
+    authDomain: "chat-responses.firebaseapp.com",
+    databaseURL: "https://chat-responses-default-rtdb.firebaseio.com",
+    projectId: "chat-responses",
+    storageBucket: "chat-responses.firebasestorage.app",
+    messagingSenderId: "691701955419",
+    appId: "1:691701955419:web:1ae01fa21b5e7eb017f87e"
+};
 
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-        function saveResponse(response) {
-            const responsesRef = ref(database, 'responses');
-            const newResponseRef = push(responsesRef);
-            set(newResponseRef, {
-                response: response,
-                timestamp: new Date().toISOString()
+        // Function to write data to Firebase (Appends instead of overwriting)
+        function writeData(userId, mood) {
+            const userRef = ref(database, 'users/' + userId + '/moods');
+            push(userRef, { mood: mood, timestamp: Date.now() });
+        }
+
+        // Function to listen for database updates
+        function listenForUpdates() {
+            const moodRef = ref(database, 'users/');
+            onValue(moodRef, (snapshot) => {
+                const data = snapshot.val();
+                console.log("Updated Data: ", data);
             });
         }
 
+        // Start listening for updates
+        listenForUpdates();
+
+        // Function to display options and save responses
         function showNextOptions(options) {
             document.getElementById("options").innerHTML = "";
             options.forEach(option => {
                 let button = document.createElement("button");
                 button.textContent = option.text;
                 button.onclick = function () {
-                    saveResponse(option.text);
+                    writeData("user1", option.text);  // Saves to Firebase
                     if (option.next) {
                         showNextOptions(option.next);
                     } else {
@@ -48,6 +60,7 @@
             });
         }
 
+        // Load chat options when page loads
         document.addEventListener("DOMContentLoaded", function () {
             const firstOptions = [
                 { text: "Good", next: [
@@ -116,5 +129,6 @@
 <body>
     <h2>Heyyy, How's your mood rn?</h2>
     <div id="options"></div>
+    <p id="message"></p>
 </body>
 </html>
