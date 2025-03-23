@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Interaction</title>
     <script type="module">
-        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Firebase Configuration
         const firebaseConfig = {
             apiKey: "AIzaSyANn0XFPQ_W9QAgNnzIDq4-M2prTRPq13w",
             authDomain: "chat-responses.firebaseapp.com",
@@ -20,78 +18,95 @@
             appId: "1:691701955419:web:1ae01fa21b5e7eb017f87e"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
         function saveResponse(userId, mood) {
-            push(ref(database, 'users/' + userId), { mood: mood });
+            const userRef = ref(database, 'users/' + userId + '/responses');
+            push(userRef, mood);
         }
 
-        function showNextOptions(text, options) {
-            document.getElementById("message").textContent = text;
+        function showNextOptions(option) {
+            document.getElementById("message").textContent = option.text;
             document.getElementById("options").innerHTML = "";
-            options.forEach(option => {
-                let button = document.createElement("button");
-                button.textContent = option.text;
-                button.onclick = function () {
-                    saveResponse("user1", option.text);
-                    if (option.next) {
-                        showNextOptions(option.nextText, option.next);
-                    } else {
-                        document.getElementById("message").textContent = "Cool! I'll text you soon.";
-                    }
-                };
-                document.getElementById("options").appendChild(button);
-            });
+
+            if (option.next && option.next.length > 0) {
+                option.next.forEach(nextOption => {
+                    let button = document.createElement("button");
+                    button.textContent = nextOption.text;
+                    button.onclick = function () {
+                        saveResponse("user1", nextOption.text);
+                        if (["Aight", "Aight fine", "5 min", "10 min", "Let's talk", "Oke fine"].includes(nextOption.text)) {
+                            document.getElementById("message").textContent = nextOption.text;
+                            setTimeout(() => {
+                                document.getElementById("message").textContent = "Cool! I'll text ya soon.";
+                            }, 500);
+                        } else {
+                            showNextOptions(nextOption);
+                        }
+                    };
+                    document.getElementById("options").appendChild(button);
+                });
+            }
         }
 
         document.addEventListener("DOMContentLoaded", function () {
             const firstOptions = [
-                { text: "Good", nextText: "Glad to hear that, Let's talk things out yaar 🫠", next: [
-                    { text: "Aight", next: [] },
-                    { text: "Cool! I'll text ya", next: [] },
-                    { text: "What if I say no kid", nextText: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                        { text: "Aight fine", next: [] },
-                        { text: "I'll think about it", next: [
-                            { text: "How long are you gonna think T_T", nextText: "Choose your time", next: [
-                                { text: "5 min", next: [] },
-                                { text: "10 min", next: [] }
+                { text: "Good", next: [
+                    { text: "Glad to hear that, Let's talk things out yaar 🫠", next: [
+                        { text: "Aight", next: [] },
+                        { text: "What if I say no kid", next: [
+                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                                { text: "Aight fine", next: [] },
+                                { text: "I'll think about it", next: [
+                                    { text: "How long are you gonna think T_T", next: [
+                                        { text: "5 min", next: [] },
+                                        { text: "10 min", next: [] }
+                                    ] }
+                                ] }
                             ] }
                         ] }
                     ] }
                 ] },
-                { text: "Meh", nextText: "What happened?", next: [
-                    { text: "Let's talk", next: [
-                        { text: "Okeee, I'll text ya", next: [] }
-                    ] },
-                    { text: "Won't tell ya", nextText: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                        { text: "Oke fine", next: [] },
-                        { text: "Let me think about it", next: [
-                            { text: "How long are you gonna think T_T", nextText: "Choose your time", next: [
-                                { text: "5 min", next: [] },
-                                { text: "10 min", next: [] }
+                { text: "Meh", next: [
+                    { text: "What happened?", next: [
+                        { text: "Let's talk", next: [] },
+                        { text: "Won't tell ya", next: [
+                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                                { text: "Oke fine", next: [] },
+                                { text: "Let me think about it", next: [
+                                    { text: "How long are you gonna think T_T", next: [
+                                        { text: "5 min", next: [] },
+                                        { text: "10 min", next: [] }
+                                    ] }
+                                ] }
                             ] }
                         ] }
                     ] }
                 ] },
-                { text: "Ain't gonna tell ya kid", nextText: "Ohhh being all secretive huh 😂", next: [
-                    { text: "None of your business", nextText: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                        { text: "Oke fine", next: [] },
-                        { text: "Let me think about it", next: [
-                            { text: "How long are you gonna think T_T", nextText: "Choose your time", next: [
-                                { text: "5 min", next: [] },
-                                { text: "10 min", next: [] }
+                { text: "Ain't gonna tell ya kid", next: [
+                    { text: "Ohhh being all secretive huh 😂", next: [
+                        { text: "None of your business", next: [
+                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                                { text: "Oke fine", next: [] },
+                                { text: "Let me think about it", next: [
+                                    { text: "How long are you gonna think T_T", next: [
+                                        { text: "5 min", next: [] },
+                                        { text: "10 min", next: [] }
+                                    ] }
+                                ] }
+                            ] }
+                        ] },
+                        { text: "Hehe", next: [
+                            { text: "Let's talk things out yaar", next: [
+                                { text: "Aight", next: [] }
                             ] }
                         ] }
-                    ] },
-                    { text: "Hehe", nextText: "Let's talk things out yaar", next: [
-                        { text: "Aight", next: [] }
                     ] }
                 ] }
             ];
 
-            showNextOptions("Heyyy, How's your mood rn?", firstOptions);
+            showNextOptions({ text: "Heyyy, How's your mood rn?", next: firstOptions });
         });
     </script>
 </head>
