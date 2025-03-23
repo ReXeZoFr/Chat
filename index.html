@@ -6,8 +6,8 @@
     <title>Chat Interaction</title>
     <script type="module">
         // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { initializeApp } from "firebase/app";
+        import { getDatabase, ref, push, onValue } from "firebase/database";
 
         // Firebase Configuration
         const firebaseConfig = {
@@ -24,8 +24,9 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        function saveResponse(userId, mood) {
-            set(ref(database, 'users/' + userId), { mood: mood });
+        function saveResponse(response) {
+            const responsesRef = ref(database, 'responses');
+            push(responsesRef, { text: response });
         }
 
         function showNextOptions(options) {
@@ -34,7 +35,7 @@
                 let button = document.createElement("button");
                 button.textContent = option.text;
                 button.onclick = function () {
-                    saveResponse("user1", option.text);
+                    saveResponse(option.text);
                     if (option.next) {
                         showNextOptions(option.next);
                     } else {
@@ -53,15 +54,15 @@
                             { text: "Aight", next: [] },
                             { text: "Cool! I'll text ya", next: [] }
                         ] }
-                    ] }
-                ] },
-                { text: "What if I say no kid", next: [
-                    { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                        { text: "Aight fine", next: [] },
-                        { text: "I'll think about it", next: [
-                            { text: "How long are you gonna think T_T", next: [
-                                { text: "5 min", next: [] },
-                                { text: "10 min", next: [] }
+                    ] },
+                    { text: "What if I say no kid", next: [
+                        { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
+                            { text: "Aight fine", next: [] },
+                            { text: "I'll think about it", next: [
+                                { text: "How long are you gonna think T_T", next: [
+                                    { text: "5 min", next: [] },
+                                    { text: "10 min", next: [] }
+                                ] }
                             ] }
                         ] }
                     ] }
@@ -105,14 +106,13 @@
                     ] }
                 ] }
             ];
-
             showNextOptions(firstOptions);
         });
     </script>
 </head>
 <body>
     <h2>Heyyy, How's your mood rn?</h2>
-    <div id="message"></div>
     <div id="options"></div>
+    <p id="message"></p>
 </body>
 </html>
