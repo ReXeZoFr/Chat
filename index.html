@@ -35,7 +35,7 @@
                 button.textContent = option.text;
                 button.onclick = function () {
                     saveResponse("user1", option.text);
-                    if (option.next) {
+                    if (option.next && option.next.length > 0) {
                         showNextOptions(option.next);
                     } else {
                         document.getElementById("message").textContent = "Cool! I'll text you soon.";
@@ -46,67 +46,130 @@
         }
 
         document.addEventListener("DOMContentLoaded", function () {
-    const firstOptions = [
-        { text: "Good", next: [
-            { text: "Glad to hear that", next: [
-                { text: "Let's talk things out yaar", next: [
-                    { text: "Aight", next: [] },
-                    { text: "Cool! I'll text ya", next: [] }
-                ] },
-                { text: "What if I say no kid", next: [
-                    { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                        { text: "Aight fine", next: [] },
-                        { text: "I'll think about it", next: [
-                            { text: "How long are you gonna think T_T", next: [
-                                { text: "5 min", next: [] },
-                                { text: "10 min", next: [] }
-                            ] }
-                        ] }
-                    ] }
-                ] }
-            ] }
-        ] }
-    ];
-});
-
-                { text: "Meh", next: [
-                    { text: "What happened?", next: [
-                        { text: "Let's talk", next: [
-                            { text: "Okeee, I'll text ya", next: [] }
-                        ] },
-                        { text: "Won't tell ya", next: [
-                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                                { text: "Oke fine", next: [] },
-                                { text: "Let me think about it", next: [
-                                    { text: "How long are you gonna think T_T", next: [
-                                        { text: "5 min", next: [] },
-                                        { text: "10 min", next: [] }
-                                    ] }
-                                ] }
-                            ] }
-                        ] }
-                    ] }
-                ] },
-                { text: "Ain't gonna tell ya kid", next: [
-                    { text: "Ohhh being all secretive huh 😂", next: [
-                        { text: "None of your business", next: [
-                            { text: "Come onnn, it won't happen again dood! No more mood killers <3", next: [
-                                { text: "Oke fine", next: [] },
-                                { text: "Let me think about it", next: [
-                                    { text: "How long are you gonna think T_T", next: [
-                                        { text: "5 min", next: [] },
-                                        { text: "10 min", next: [] }
-                                    ] }
-                                ] }
-                            ] }
-                        ] },
-                        { text: "Hehe", next: [
-                            { text: "Let's talk things out yaar", next: [
-                                { text: "Aight", next: [] }
-                            ] }
-                        ] }
-                    ] }
-                ] }
+            const firstOptions = [
+                { 
+                    text: "Good", 
+                    next: [
+                        { 
+                            text: "Glad to hear that", 
+                            next: [
+                                { 
+                                    text: "Let's talk things out yaar", 
+                                    next: [
+                                        { text: "Aight", next: [] },
+                                        { text: "Cool! I'll text ya", next: [] }
+                                    ] 
+                                },
+                                { 
+                                    text: "What if I say no kid", 
+                                    next: [
+                                        { 
+                                            text: "Come onnn, it won't happen again dood! No more mood killers <3", 
+                                            next: [
+                                                { text: "Aight fine", next: [] },
+                                                { 
+                                                    text: "I'll think about it", 
+                                                    next: [
+                                                        { 
+                                                            text: "How long are you gonna think T_T", 
+                                                            next: [
+                                                                { text: "5 min", next: [] },
+                                                                { text: "10 min", next: [] }
+                                                            ] 
+                                                        }
+                                                    ] 
+                                                }
+                                            ] 
+                                        }
+                                    ] 
+                                }
+                            ] 
+                        }
+                    ] 
+                },
+                { 
+                    text: "Meh", 
+                    next: [
+                        { 
+                            text: "What happened?", 
+                            next: [
+                                { 
+                                    text: "Let's talk", 
+                                    next: [
+                                        { text: "Okeee, I'll text ya", next: [] }
+                                    ] 
+                                },
+                                { 
+                                    text: "Won't tell ya", 
+                                    next: [
+                                        { 
+                                            text: "Come onnn, it won't happen again dood! No more mood killers <3", 
+                                            next: [
+                                                { text: "Oke fine", next: [] },
+                                                { 
+                                                    text: "Let me think about it", 
+                                                    next: [
+                                                        { 
+                                                            text: "How long are you gonna think T_T", 
+                                                            next: [
+                                                                { text: "5 min", next: [] },
+                                                                { text: "10 min", next: [] }
+                                                            ] 
+                                                        }
+                                                    ] 
+                                                }
+                                            ] 
+                                        }
+                                    ] 
+                                }
+                            ] 
+                        }
+                    ] 
+                },
+                { 
+                    text: "Ain't gonna tell ya kid", 
+                    next: [
+                        { 
+                            text: "Ohhh being all secretive huh 😂", 
+                            next: [
+                                { 
+                                    text: "None of your business", 
+                                    next: [
+                                        { 
+                                            text: "Come onnn, it won't happen again dood! No more mood killers <3", 
+                                            next: [
+                                                { text: "Oke fine", next: [] },
+                                                { 
+                                                    text: "Let me think about it", 
+                                                    next: [
+                                                        { 
+                                                            text: "How long are you gonna think T_T", 
+                                                            next: [
+                                                                { text: "5 min", next: [] },
+                                                                { text: "10 min", next: [] }
+                                                            ] 
+                                                        }
+                                                    ] 
+                                                }
+                                            ] 
+                                        }
+                                    ] 
+                                },
+                                { 
+                                    text: "Hehe", 
+                                    next: [
+                                        { 
+                                            text: "Let's talk things out yaar", 
+                                            next: [
+                                                { text: "Aight", next: [] }
+                                            ] 
+                                        }
+                                    ] 
+                                }
+                            ] 
+                        }
+                    ] 
+                }
             ];
 
             showNextOptions(firstOptions);
